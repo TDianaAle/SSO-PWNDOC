@@ -1,8 +1,7 @@
-version: '3'
 services:
+
   mongodb:
     image: mongo:4.2.15
-    container_name: mongo-pwndoc
     command: --wiredTigerCacheSizeGB 1 # 50% of (max RAM - 1GB) - minimum 0.25 (Modify it depending on defined RAM limits)
     deploy:
       resources:
@@ -10,46 +9,49 @@ services:
           memory: 3G # Maximum memory to allocate (Modify it depending on host ressources - leave at least 1GB free for host)
         reservations:
           memory: 1G # Minimum memory required
-    volumes:
-      - ./backend/mongo-data:/data/db
     restart: always
     environment:
-      - MONGO_DB:pwndoc
+      - MONGO_DB=pwndoc
     networks:
-      - pwndoc-net
+      - backend-internal
 
   pwndoc-backend:
-    image: ghcr.io/pwndoc/pwndoc-backend:latest
-    container_name: pwndoc-backend
     environment:
-      - DB_SERVER=mongo-pwndoc
+      - DB_SERVER=mongodb
       - DB_NAME=pwndoc
-    volumes:
-      - ./backend/report-templates:/app/report-templates
-      - ./backend/src/config:/app/src/config
-      - ./backend/src/lib/custom:/app/src/lib/custom
-      - ./backend/backup:/app/backup
+      - LT_URL=http://pwndoc-languagetools:8010
+      - LT_API_URL=http://pwndoc-languagetools:8020
     depends_on:
       - mongodb
     restart: always
-    networks: 
-      - pwndoc-net
+    networks:
+      - backend-internal
+      - frontend-internal
 
-  pwndoc-frontend:
-    image: ghcr.io/pwndoc/pwndoc-frontend:latest
-    container_name: pwndoc-frontend
+  pwndoc-languagetools:
+    image: pwndoc/languagetools:prod
+    build:
+      context: ./languagetool/
+      dockerfile: Dockerfile
+    restart: always
     environment:
       - BACKEND_URL=https://pwndoc-backend:4242
-    restart: always
-    ports:
-      - ${APP_PORT}:8443
+    depends_on:
+      - pwndoc-backend
+    volumes:
+      - ./languagetool/custom-rules:/LanguageTool/custom-rules
     networks:
-      - pwndoc-net
+      - backend-internal
 
-volumes:
-  mongo-data:
+  pwndoc-frontend:
+    restart: always
+    depends_on:
+      - pwndoc-backend
+    networks:
+      - frontend-internal
 
 networks:
-  pwndoc-net:
-    name: pwndoc-prod-network
+  backend-internal:
+    driver: bridge
+  frontend-internal:
     driver: bridge

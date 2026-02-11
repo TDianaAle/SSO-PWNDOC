@@ -1,17 +1,19 @@
 ### STAGE 1: Build ###
-FROM node:lts-alpine AS build
+FROM node:lts-alpine AS frontend-build
 WORKDIR /app
-COPY package.json ./
-RUN npm install
 COPY . .
+RUN npm install
 RUN npm run build
 
 ### STAGE 2: Run ###
 FROM nginx:stable-alpine
-RUN apk add --no-cache gettext
-COPY .docker/nginx.conf.template /etc/nginx/templates/default.conf.template
 RUN mkdir -p /etc/nginx/ssl
 COPY ssl/server* /etc/nginx/ssl/
-COPY --from=build /app/dist/spa /usr/share/nginx/html
-CMD ["sh", "-c", "envsubst '$BACKEND_URL' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
-# CMD ["nginx", "-g", "daemon off;"]
+COPY .docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY .docker/nginx/snippets /etc/nginx/snippets
+
+COPY --from=frontend-build /app/dist/spa /usr/share/nginx/html
+
+EXPOSE 8443
+
+CMD ["nginx", "-g", "daemon off;"]

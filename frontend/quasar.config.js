@@ -1,6 +1,7 @@
 import { defineConfig } from '#q-app/wrappers'
 import path from 'node:path'
 import fs from 'node:fs'
+import autoprefixer from 'autoprefixer'
 
 export default defineConfig((ctx) => {
   return {
@@ -13,7 +14,8 @@ export default defineConfig((ctx) => {
       'darkmode',
       'lodash',
       'socketio',
-      'settings'
+      'settings',
+      'router-instance'
     ],
     css: [
       'app.scss'
@@ -41,6 +43,11 @@ export default defineConfig((ctx) => {
           ...cfg.resolve.alias,
           '@': path.resolve(__dirname, '.', 'src')
         }
+      },
+      postcss: {
+        plugins: [
+          autoprefixer
+        ]
       }
     },
     devServer: {
@@ -53,13 +60,13 @@ export default defineConfig((ctx) => {
       proxy: [
         {
           context: ["/api"],
-          target: "https://pwndoc-backend-dev:4242",
+          target: "https://pwndoc-backend:4242",
           changeOrigin: true,
           secure: false
         },
         {
           context: ["/socket.io"],
-          target: "https://pwndoc-backend-dev:4242",
+          target: "https://pwndoc-backend:4242",
           changeOrigin: true,
           secure: false
         }

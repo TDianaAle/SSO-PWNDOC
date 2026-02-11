@@ -318,6 +318,41 @@
                             </q-item-section>
                         </q-item>
                     </q-card-section>
+                    <q-separator />
+                    <q-card-section>
+                        <div class="text-bold">{{$t('scoringTypes')}}</div>
+                        <br/>
+                        <div class="text-grey-8">{{$t('scoringTypesDescription')}}</div>
+                        <br/>
+                        <q-item dense>
+                            <q-item-section class="col-md-2">
+                                <q-item-label>{{$t('cvss3Name')}}</q-item-label>
+                            </q-item-section>
+                            <q-item-section>
+                                <q-toggle v-model="settings.report.public.scoringMethods.CVSS3" />
+                            </q-item-section>
+                        </q-item>
+                        <q-item dense>
+                            <q-item-section class="col-md-2">
+                                <q-item-label>{{$t('cvss4Name')}}</q-item-label>
+                            </q-item-section>
+                            <q-item-section>
+                                <q-toggle v-model="settings.report.public.scoringMethods.CVSS4" />
+                            </q-item-section>
+                        </q-item>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-section>
+                        <div class="text-bold">{{$t('enableSpellcheck')}}</div>
+                        <br/>
+                        <div class="text-grey-8" v-html="$t('enableSpellcheckDescription')"></div>
+                        <br/>
+                        <q-item>
+                            <q-item-section class="col-md-2">
+                                <q-toggle :label="$t('btn.enable')" v-model="settings.report.public.enableSpellCheck" />
+                            </q-item-section>
+                        </q-item>
+                    </q-card-section>
                 </div>
             </q-card>
 
