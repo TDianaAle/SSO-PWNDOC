@@ -1,4 +1,4 @@
-# Implementazione Single Sign-On (SSO) in PwndocNG con Keycloak
+# Implementazione Single Sign-On (SSO) in Pwndoc con Keycloak
 
 ---
 
@@ -22,14 +22,14 @@
    - 4.3 [Creazione del Client OIDC](#43-creazione-del-client-oidc)
    - 4.4 [Recupero del Client Secret](#44-recupero-del-client-secret)
    - 4.5 [Creazione di un Utente](#45-creazione-di-un-utente)
-5. [Fase 3: Modifica del Backend PwndocNG](#5-fase-3-modifica-del-backend-pwndocng)
-   - 5.1 [Modifica del docker-compose.yml di PwndocNG](#51-modifica-del-docker-composeyml-di-pwndocng)
+5. [Fase 3: Modifica del Backend Pwndoc](#5-fase-3-modifica-del-backend-pwndoc)
+   - 5.1 [Modifica del docker-compose.yml di Pwndoc](#51-modifica-del-docker-composeyml-di-pwndoc)
    - 5.2 [Installazione delle Dipendenze Node.js](#52-installazione-delle-dipendenze-nodejs)
    - 5.3 [Creazione del File di Configurazione OIDC](#53-creazione-del-file-di-configurazione-oidc)
    - 5.4 [Creazione della Strategia Passport](#54-creazione-della-strategia-passport)
    - 5.5 [Modifica del File app.js](#55-modifica-del-file-appjs)
    - 5.6 [Modifica del File user.js (Routes)](#56-modifica-del-file-userjs-routes)
-6. [Fase 4: Modifica del Frontend PwndocNG](#6-fase-4-modifica-del-frontend-pwndocng)
+6. [Fase 4: Modifica del Frontend Pwndoc](#6-fase-4-modifica-del-frontend-pwndoc)
    - 6.1 [Modifica della Pagina di Login](#61-modifica-della-pagina-di-login)
 7. [Fase 5: Test e Validazione](#7-fase-5-test-e-validazione)
    - 7.1 [Riavvio dei Container](#71-riavvio-dei-container)
@@ -49,14 +49,14 @@
 
 ## 1. Introduzione
 
-Questa guida descrive la configurazione del Single Sign-On (SSO) tra PwndocNG e Keycloak.
-Una volta completata la configurazione, l'amministratore potrà creare gli utenti direttamente in Keycloak all'interno del realm pwndoc, assegnando loro una password temporanea. Quando un utente accede per la prima volta alla pagina di login di PwndocNG, troverà il pulsante "Login with SSO" come unico metodo di autenticazione disponibile. Cliccando sul pulsante, verrà reindirizzato alla pagina di login di Keycloak dove inserirà le credenziali temporanee fornite dall'amministratore. Al primo accesso, Keycloak richiederà di impostare una nuova password personale che verrà salvata esclusivamente in Keycloak.
-A questo punto, l'utente viene creato automaticamente in PwndocNG tramite il meccanismo di auto-provisioning, con ruolo di default user. Per tutti gli accessi successivi, l'utente utilizzerà le credenziali impostate in Keycloak. La sessione ha una durata di 24 ore, dopodiché sarà necessario autenticarsi nuovamente.
-È importante sottolineare che le credenziali sono gestite centralmente da Keycloak e gli utenti SSO non possono utilizzare il login tradizionale di PwndocNG
+Questa guida descrive la configurazione del Single Sign-On (SSO) tra Pwndoc e Keycloak.
+Una volta completata la configurazione, l'amministratore potrà creare gli utenti direttamente in Keycloak all'interno del realm pwndoc, assegnando loro una password temporanea. Quando un utente accede per la prima volta alla pagina di login di Pwndoc, troverà il pulsante "Login with SSO" come unico metodo di autenticazione disponibile. Cliccando sul pulsante, verrà reindirizzato alla pagina di login di Keycloak dove inserirà le credenziali temporanee fornite dall'amministratore. Al primo accesso, Keycloak richiederà di impostare una nuova password personale che verrà salvata esclusivamente in Keycloak.
+A questo punto, l'utente viene creato automaticamente in Pwndoc tramite il meccanismo di auto-provisioning, con ruolo di default user. Per tutti gli accessi successivi, l'utente utilizzerà le credenziali impostate in Keycloak. La sessione ha una durata di 24 ore, dopodiché sarà necessario autenticarsi nuovamente.
+È importante sottolineare che le credenziali sono gestite centralmente da Keycloak e gli utenti SSO non possono utilizzare il login tradizionale di Pwndoc
 
 ### 1.1 Contesto
 
-PwndocNG è un'applicazione web open-source progettata per la gestione e la generazione di report di penetration testing. L'applicazione utilizza nativamente un sistema di autenticazione locale basato su username e password con token JWT.
+Pwndoc è un'applicazione web open-source progettata per la gestione e la generazione di report di penetration testing. L'applicazione utilizza nativamente un sistema di autenticazione locale basato su username e password con token JWT.
 
 L'implementazione di un sistema Single Sign-On (SSO) permette di:
 
@@ -72,18 +72,18 @@ L'implementazione di un sistema Single Sign-On (SSO) permette di:
 | Componente | Tecnologia | Versione |
 |------------|------------|----------|
 | Identity Provider | Keycloak | 26.5.1 |
-| Applicazione Target | PwndocNG | Latest |
+| Applicazione Target | Pwndoc| Latest |
 | Protocollo SSO | OpenID Connect (OIDC) | 1.0 |
 | Container Runtime | Docker | Latest |
 | Orchestrazione | Docker Compose | v2 |
 | Database Keycloak | PostgreSQL | 16-alpine |
-| Database PwndocNG | MongoDB | 4.2 |
+| Database Pwndoc| MongoDB | 4.2 |
 
 ### 1.3 Flusso di Autenticazione OIDC
 
 ```
 ┌──────────┐     ┌──────────────┐     ┌──────────────┐
-│  Utente  │────▶│   PwndocNG   │────▶│   Keycloak   │
+│  Utente  │────▶│   Pwndoc   │────▶│   Keycloak   │
 │ (Browser)│     │  (Frontend)  │     │     (IdP)    │
 └──────────┘     └──────────────┘     └──────────────┘
      │                  │                     │
@@ -138,7 +138,7 @@ L'implementazione di un sistema Single Sign-On (SSO) permette di:
                     │  │         │ OIDC                               │   │
                     │  │         ▼                                    │   │
      :8443 ─────────┼──┼─▶┌─────────────┐      ┌─────────────────┐   │   │
-                    │  │  │  PwndocNG   │      │    PwndocNG     │   │   │
+                    │  │  │  Pwndoc   │      │        Pwndoc    │   │   │
                     │  │  │  Frontend   │◀────▶│    Backend      │   │   │
                     │  │  │   :8443     │      │    :4242        │   │   │
                     │  │  └─────────────┘      └────────┬────────┘   │   │
@@ -161,8 +161,8 @@ L'implementazione di un sistema Single Sign-On (SSO) permette di:
 ├── keycloak/
 │   └── docker-compose.yml          # Configurazione Keycloak standalone
 │
-└── pwndoc-ng/
-    ├── docker-compose.yml          # Configurazione PwndocNG (modificata)
+└── pwndoc/
+    ├── docker-compose.yml          # Configurazione Pwndoc (modificata)
     ├── backend/
     │   └── src/
     │       ├── app.js              # Entry point (modificato)
@@ -292,7 +292,7 @@ Dovreste vedere la pagina di benvenuto di Keycloak.
 2. Cliccare su "Create client"
 3. **General Settings**:
    - Client type: `OpenID Connect`
-   - Client ID: `pwndoc-ng`
+   - Client ID: `pwndoc`
 4. Cliccare su "Next"
 
 #### 4.3.2 Capability Config
@@ -314,7 +314,7 @@ Cliccare su "Save"
 
 ### 4.4 Recupero del Client Secret
 
-1. Nella pagina del client pwndoc-ng, cliccare sulla tab "Credentials"
+1. Nella pagina del client pwndoc, cliccare sulla tab "Credentials"
 2. Copiare il valore del campo "Client secret"
 3. Conservare questo valore per la configurazione successiva
 
@@ -347,14 +347,14 @@ Cliccare su "Save"
 
 ---
 
-## 5. Fase 3: Modifica del Backend PwndocNG
+## 5. Fase 3: Modifica del Backend Pwndoc
 
-### 5.1 Modifica del docker-compose.yml di PwndocNG
+### 5.1 Modifica del docker-compose.yml di Pwndoc
 
 #### 5.1.1 Backup del File Originale
 
 ```bash
-cd ~/pwndoc-ng
+cd ~/pwndoc
 cp docker-compose.yml docker-compose.yml.backup
 ```
 
@@ -384,7 +384,7 @@ networks:
 ### 5.2 Installazione delle Dipendenze Node.js
 
 ```bash
-cd ~/pwndoc-ng/backend
+cd ~/pwndoc/backend
 
 # Installare le librerie necessarie per OIDC
 npm install passport passport-openidconnect openid-client express-session
@@ -395,7 +395,7 @@ npm install passport passport-openidconnect openid-client express-session
 #### 5.3.1 Creazione del File oidc.json
 
 ```bash
-cd ~/pwndoc-ng/backend/src/config
+cd ~/pwndoc/backend/src/config
 nano oidc.json
 ```
 
@@ -405,7 +405,7 @@ Contenuto del file:
 {
     "enabled": true,
     "issuer": "http://localhost:8080/realms/pwndoc",
-    "clientID": "pwndoc-ng",
+    "clientID": "pwndoc",
     "clientSecret": "z7GhKpLfj0dFif3w90TsRZlbF3WLXbQr",
     "callbackURL": "https://localhost:8443/api/users/oidc/callback",
     "scope": "openid profile email",
@@ -421,7 +421,7 @@ Contenuto del file:
 #### 5.4.1 Creazione del File passport.js
 
 ```bash
-cd ~/pwndoc-ng/backend/src/lib
+cd ~/pwndoc/backend/src/lib
 nano passport.js
 ```
 
@@ -525,7 +525,7 @@ module.exports = passport;
 #### 5.5.1 Apertura del File
 
 ```bash
-cd ~/pwndoc-ng/backend/src
+cd ~/pwndoc/backend/src
 nano app.js
 ```
 
@@ -571,7 +571,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: MongoStore.create({
-    mongoUrl: 'mongodb://mongo-pwndoc-ng:27017/pwndoc',
+    mongoUrl: 'mongodb://mongo-pwndoc:27017/pwndoc',
     ttl: 24 * 60 * 60
   }),
   cookie: { 
@@ -609,7 +609,7 @@ app.use(function(err, req, res, next) {
 #### 5.6.1 Apertura del File
 
 ```bash
-cd ~/pwndoc-ng/backend/src/routes
+cd ~/pwndoc/backend/src/routes
 nano user.js
 ```
 
@@ -691,14 +691,14 @@ Alla fine del file, PRIMA della chiusura `}` finale, aggiungere:
 
 ---
 
-## 6. Fase 4: Modifica del Frontend PwndocNG
+## 6. Fase 4: Modifica del Frontend Pwndoc
 
 ### 6.1 Modifica della Pagina di Login
 
 #### 6.1.1 Apertura del File
 
 ```bash
-cd ~/pwndoc-ng/frontend/src/pages
+cd ~/pwndoc/frontend/src/pages
 nano login.vue
 ```
 
@@ -743,7 +743,7 @@ loginSSO() {
 
 ```bash
 # Fermare tutti i container
-cd ~/pwndoc-ng
+cd ~/pwndoc
 docker-compose down
 cd ~/keycloak
 docker-compose down
@@ -755,8 +755,8 @@ docker-compose up -d
 # Attendere 30 secondi per l'avvio di Keycloak
 sleep 30
 
-# Riavviare PwndocNG con rebuild
-cd ~/pwndoc-ng
+# Riavviare Pwndoc con rebuild
+cd ~/pwndoc
 docker-compose build --no-cache backend frontend
 docker-compose up -d
 ```
@@ -771,7 +771,7 @@ docker ps
 
 ```bash
 # Verificare che il backend possa raggiungere Keycloak
-docker exec -it pwndoc-ng-backend wget -qO- http://keycloak:8080/realms/pwndoc/.well-known/openid-configuration | head -1
+docker exec -it pwndoc-backend wget -qO- http://keycloak:8080/realms/pwndoc/.well-known/openid-configuration | head -1
 ```
 
 Output atteso (dovrebbe iniziare con):
@@ -789,13 +789,13 @@ Output atteso (dovrebbe iniziare con):
 6. Inserire le credenziali precedentemente impostate:
    - Username: `testuser`
    - Password: `password123`
-7. Dopo l'autenticazione, si verrà reindirizzati alla dashboard di PwndocNG
+7. Dopo l'autenticazione, si verrà reindirizzati alla dashboard di Pwndoc
 
 ### 7.5 Verifica dei Log
 
 ```bash
 # Monitorare i log del backend durante il login
-docker logs -f pwndoc-ng-backend
+docker logs -f pwndoc-backend
 ```
 
 Log attesi per un login SSO riuscito:
@@ -826,7 +826,7 @@ Token generati con successo
 **Soluzione:**
 1. Verificare l'issuer in oidc.json:
    ```bash
-   cat ~/pwndoc-ng/backend/src/config/oidc.json | grep issuer
+   cat ~/pwndoc/backend/src/config/oidc.json | grep issuer
    ```
 2. L'issuer deve essere esattamente: `http://localhost:8080/realms/pwndoc`
 3. Verificare che `KC_HOSTNAME: localhost` sia configurato nel docker-compose di Keycloak
@@ -848,7 +848,7 @@ Token generati con successo
    ```
 2. Verificare la connettività:
    ```bash
-   docker exec -it pwndoc-ng-backend ping -c 3 keycloak
+   docker exec -it pwndoc-backend ping -c 3 keycloak
    ```
 
 ### 8.4 Errore: "authentication_expired"
@@ -874,7 +874,7 @@ app.use(session({
 
 **Soluzione:**
 ```bash
-cd ~/pwndoc-ng
+cd ~/pwndoc
 docker-compose down
 docker-compose build --no-cache frontend
 docker-compose up -d
@@ -887,7 +887,7 @@ docker-compose up -d
 **Soluzione:**
 1. Controllare i log:
    ```bash
-   docker logs pwndoc-ng-backend --tail 100
+   docker logs pwndoc-backend --tail 100
    ```
 2. Correggere eventuali errori di sintassi
 3. Ricompilare il container
@@ -932,7 +932,7 @@ environment:
 
 -  Installazione e configurazione di Keycloak come Identity Provider
 -  Creazione del Realm e del Client OIDC
--  Integrazione del protocollo OIDC nel backend di PwndocNG
+-  Integrazione del protocollo OIDC nel backend di Pwndoc
 -  Aggiunta del pulsante "Login with SSO" nel frontend
 -  Test e validazione del flusso di autenticazione
 
@@ -959,7 +959,6 @@ environment:
 
 [3] D. Hardt, "The OAuth 2.0 Authorization Framework," RFC 6749, Internet Engineering Task Force (IETF), October 2012. [Online]. Available: https://datatracker.ietf.org/doc/html/rfc6749
 
-[4] PwndocNG, "PwndocNG - Pentest Report Generator," GitHub Repository. [Online]. Available: https://github.com/pwndoc-ng/pwndoc-ng
 
 [5] Jared Hanson, "Passport.js - Simple, unobtrusive authentication for Node.js," 2024. [Online]. Available: https://www.passportjs.org/
 
