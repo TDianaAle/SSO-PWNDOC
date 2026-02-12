@@ -72,7 +72,7 @@ L'implementazione di un sistema Single Sign-On (SSO) permette di:
 | Componente | Tecnologia | Versione |
 |------------|------------|----------|
 | Identity Provider | Keycloak | 26.5.1 |
-| Applicazione Target | PwndocNG | Latest |
+| Applicazione Target | Pwndoc | Latest |
 | Protocollo SSO | OpenID Connect (OIDC) | 1.0 |
 | Container Runtime | Docker | Latest |
 | Orchestrazione | Docker Compose | v2 |
@@ -138,7 +138,7 @@ L'implementazione di un sistema Single Sign-On (SSO) permette di:
                     │  │         │ OIDC                               │   │
                     │  │         ▼                                    │   │
      :8443 ─────────┼──┼─▶┌─────────────┐      ┌─────────────────┐   │   │
-                    │  │  │  PwndocNG   │      │    PwndocNG     │   │   │
+                    │  │  │  Pwndoc   │      │    Pwndoc    │   │   │
                     │  │  │  Frontend   │◀────▶│    Backend      │   │   │
                     │  │  │   :8443     │      │    :4242        │   │   │
                     │  │  └─────────────┘      └────────┬────────┘   │   │
@@ -161,8 +161,8 @@ L'implementazione di un sistema Single Sign-On (SSO) permette di:
 ├── keycloak/
 │   └── docker-compose.yml          # Configurazione Keycloak standalone
 │
-└── pwndoc-ng/
-    ├── docker-compose.yml          # Configurazione PwndocNG (modificata)
+└── pwndoc/
+    ├── docker-compose.yml          # Configurazione Pwndoc (modificata)
     ├── backend/
     │   └── src/
     │       ├── app.js              # Entry point (modificato)
@@ -292,7 +292,7 @@ Dovreste vedere la pagina di benvenuto di Keycloak.
 2. Cliccare su "Create client"
 3. **General Settings**:
    - Client type: `OpenID Connect`
-   - Client ID: `pwndoc-ng`
+   - Client ID: `pwndoc`
 4. Cliccare su "Next"
 
 #### 4.3.2 Capability Config
@@ -354,7 +354,7 @@ Cliccare su "Save"
 #### 5.1.1 Backup del File Originale
 
 ```bash
-cd ~/pwndoc-ng
+cd ~/pwndoc
 cp docker-compose.yml docker-compose.yml.backup
 ```
 
@@ -395,7 +395,7 @@ npm install passport passport-openidconnect openid-client express-session
 #### 5.3.1 Creazione del File oidc.json
 
 ```bash
-cd ~/pwndoc-ng/backend/src/config
+cd ~/pwndoc/backend/src/config
 nano oidc.json
 ```
 
