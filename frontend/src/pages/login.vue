@@ -146,6 +146,19 @@
                 <q-card-section align="center">
                     <q-btn :loading="loginLoading" color="blue" class="full-width" unelevated no-caps @click="getToken()">{{$t('login')}}</q-btn>
                 </q-card-section>
+<<<<<<< HEAD
+=======
+                
+                
+                <q-card-section align="center" class="q-pt-none">
+		    <q-separator class="q-mb-md" />
+		    <p class="text-grey-6 q-mb-md">OR</p>
+		    <q-btn color="orange" class="full-width" unelevated no-caps @click="loginSSO()">
+			<q-icon name="mdi-shield-key" class="q-mr-sm" />
+			Login with SSO
+		    </q-btn>
+		</q-card-section>
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
             </div>
         </q-card>
     </div>
@@ -272,7 +285,15 @@ export default {
             .finally(() => {
                 this.loginLoading = false;
             });
+<<<<<<< HEAD
         }
+=======
+        },
+        
+         loginSSO() {
+	      window.location.href = '/api/users/oidc/login';
+	 }
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
     }
 }
 </script>
@@ -285,4 +306,8 @@ export default {
 .loading p {
     font-size: 20px;
 }
+<<<<<<< HEAD
 </style>
+=======
+</style>
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)

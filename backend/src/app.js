@@ -23,6 +23,12 @@ var io = require('socket.io')(https, {
   }
 })
 var cookieParser = require('cookie-parser')
+<<<<<<< HEAD
+=======
+var session = require('express-session');
+var MongoStore = require('connect-mongo'); //necessary for new users
+
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
 var utils = require('./lib/utils');
 const config = require('./config/config.json');
 const env = process.env.NODE_ENV || 'dev';
@@ -65,6 +71,11 @@ require('./models/settings');
 require('./models/dictionary');
 require('./models/languagetool-rule');
 
+<<<<<<< HEAD
+=======
+var passport = require('./lib/passport');
+
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
 // Socket IO configuration
 io.on('connection', (socket) => {
   socket.on('join', (data) => {
@@ -133,8 +144,36 @@ app.use(function(req, res, next) {
     next();
 });
 
+<<<<<<< HEAD
 app.use(cookieParser())
 
+=======
+
+const mongoHost = process.env.DB_SERVER || 'mongodb';
+const mongoName = process.env.DB_NAME || 'pwndoc';
+app.use(cookieParser())
+
+// Session store in MongoDB  for OIDC persistence
+app.use(session({
+  secret: 'pwndoc-session-secret',
+  resave: false,
+  saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: `mongodb://${mongoHost}:27017/${mongoName}`,
+    ttl: 24 * 60 * 60
+  }),
+  cookie: { 
+    secure: true,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
 // Routes import
 require('./routes/user')(app);
 require('./routes/audit')(app, io);
@@ -142,7 +181,10 @@ require('./routes/client')(app);
 require('./routes/company')(app);
 require('./routes/vulnerability')(app);
 require('./routes/template')(app);
+<<<<<<< HEAD
 require('./routes/vulnerability')(app);
+=======
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
 require('./routes/data')(app);
 require('./routes/image')(app);
 require('./routes/settings')(app);

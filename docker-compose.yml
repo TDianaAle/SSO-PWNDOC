@@ -13,9 +13,18 @@ services:
     environment:
       - MONGO_DB=pwndoc
     networks:
+<<<<<<< HEAD
       - backend-internal
 
   pwndoc-backend:
+=======
+      - sso-network
+
+  pwndoc-backend:
+    build:
+       context: ./backend
+       dockerfile: Dockerfile
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
     environment:
       - DB_SERVER=mongodb
       - DB_NAME=pwndoc
@@ -25,8 +34,14 @@ services:
       - mongodb
     restart: always
     networks:
+<<<<<<< HEAD
       - backend-internal
       - frontend-internal
+=======
+      - sso-network
+    ports:
+      - "4242:4242"
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
 
   pwndoc-languagetools:
     image: pwndoc/languagetools:prod
@@ -41,13 +56,23 @@ services:
     volumes:
       - ./languagetool/custom-rules:/LanguageTool/custom-rules
     networks:
+<<<<<<< HEAD
       - backend-internal
 
   pwndoc-frontend:
+=======
+      - sso-network
+
+  pwndoc-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
     restart: always
     depends_on:
       - pwndoc-backend
     networks:
+<<<<<<< HEAD
       - frontend-internal
 
 networks:
@@ -55,3 +80,15 @@ networks:
     driver: bridge
   frontend-internal:
     driver: bridge
+=======
+      - sso-network
+    ports: 
+      - "8443:8443"
+
+networks:
+  backend:
+    driver: bridge
+  sso-network:
+    external: true
+    name: sso-network
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)

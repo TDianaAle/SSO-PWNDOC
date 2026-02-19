@@ -3,6 +3,10 @@ module.exports = function(app) {
     var Response = require('../lib/httpResponse.js');
     var User = require('mongoose').model('User');
     var acl = require('../lib/auth').acl;
+<<<<<<< HEAD
+=======
+    var passport = require('../lib/passport');
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
     var jwtRefreshSecret = require('../lib/auth').jwtRefreshSecret
     var jwt = require('jsonwebtoken')
     var _ = require('lodash')
@@ -297,4 +301,66 @@ module.exports = function(app) {
         .then(msg => Response.Ok(res, msg))
         .catch(err => Response.Internal(res, err));
     });
+<<<<<<< HEAD
 }
+=======
+    
+       // OIDC Login - Inizia autenticazione
+    app.get('/api/users/oidc/login', function(req, res, next) {
+        console.log('=== OIDC LOGIN CHIAMATO ===');
+        next();
+    }, passport.authenticate('oidc'));
+
+    // OIDC Callback - Keycloak rimanda qui dopo login
+    app.get('/api/users/oidc/callback', function(req, res, next) {
+        console.log('=== ROUTE CALLBACK RAGGIUNTA ===');
+        console.log('Query params:', req.query);
+        
+        passport.authenticate('oidc', function(err, user, info) {
+            console.log('=== PASSPORT AUTHENTICATE RESULT ===');
+            console.log('Error:', err);
+            console.log('User:', user ? user.username : 'null');
+            console.log('Info:', info);
+            
+            if (err) {
+                console.log('ERRORE PASSPORT:', err.message);
+                console.log('ERRORE STACK:', err.stack);
+                return res.status(500).json({error: err.message, stack: err.stack});
+            }
+            if (!user) {
+                console.log('NESSUN UTENTE - Info:', info);
+                return res.status(401).json({error: 'Authentication failed', info: info});
+            }
+            
+            req.logIn(user, function(loginErr) {
+                if (loginErr) {
+                    console.log('ERRORE LOGIN:', loginErr);
+                    return res.status(500).json({error: loginErr.message});
+                }
+                
+                console.log('=== LOGIN RIUSCITO ===');
+                console.log('Username:', user.username);
+                
+                var userId = user._id;
+                var refreshToken = jwt.sign({sessionId: null, userId: userId}, jwtRefreshSecret);
+                
+                User.updateRefreshToken(refreshToken, req.headers['user-agent'])
+                .then(msg => {
+                    console.log('Token generati con successo');
+                    res.cookie('token', `JWT ${msg.token}`, {secure: true, sameSite: 'strict', httpOnly: true});
+                    res.cookie('refreshToken', msg.refreshToken, {secure: true, sameSite: 'strict', httpOnly: true, path: '/api/users/refreshtoken'});
+                    res.redirect('https://localhost:8443');
+                })
+                .catch(tokenErr => {
+                    console.log('ERRORE TOKEN:', tokenErr);
+                    res.status(500).json({error: tokenErr.message});
+                });
+            });
+        })(req, res, next);
+    });
+
+    console.log('=== ROUTE OIDC REGISTRATE ===');
+    console.log('Login: /api/users/oidc/login');
+    console.log('Callback: /api/users/oidc/callback');
+}
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)

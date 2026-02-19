@@ -20,20 +20,35 @@
     "supertest": "^7.2.2"
   },
   "dependencies": {
+<<<<<<< HEAD
     "angular-expressions": "^1.5.1",
     "archiver": "^7.0.1",
     "bcrypt": "^6.0.0",
+=======
+    "ae-cvss-calculator": "^1.0.9",
+    "angular-expressions": "^1.5.1",
+    "archiver": "^7.0.1",
+    "bcrypt": "^6.0.0",
+    "connect-mongo": "^5.1.0",
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
     "cookie-parser": "^1.4.7",
     "diskusage": "^1.2.0",
     "docx": "^9.5.1",
     "docxtemplater": "^3.67.6",
     "docxtemplater-image-module-pwndoc": "github:pwndoc/docxtemplater-image-module-pwndoc",
     "express": "^5.2.1",
+<<<<<<< HEAD
     "full-icu": "^1.5.0",
+=======
+    "express-session": "^1.19.0",
+    "full-icu": "^1.5.0",
+    "highlight.js": "^11.11.1",
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
     "htmlparser2": "^10.0.0",
     "image-size": "^2.0.2",
     "JSONStream": "^1.3.5",
     "jsonwebtoken": "^9.0.3",
+<<<<<<< HEAD
     "pizzip": "^3.2.0",
     "lodash": "^4.17.21",
     "mongoose": "^9.1.2",
@@ -47,5 +62,21 @@
     "swagger-autogen": "^2.23.7",
     "ae-cvss-calculator": "^1.0.9",
     "highlight.js": "^11.11.1"
+=======
+    "lodash": "^4.17.21",
+    "mongoose": "^9.1.2",
+    "multer": "^2.0.2",
+    "openid-client": "^6.8.2",
+    "otpauth": "^9.4.1",
+    "passport": "^0.7.0",
+    "passport-openidconnect": "^0.1.2",
+    "pizzip": "^3.2.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.3",
+    "swagger-autogen": "^2.23.7",
+    "tar-stream": "^3.1.7",
+    "xml": "^1.0.1",
+    "xml2js": "^0.6.2"
+>>>>>>> 1c6e04d (sso setup from pwndoc-ng to pwndoc)
   }
 }
